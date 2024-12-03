@@ -83,7 +83,7 @@ const calculateRelaventScoreBasedOnSegment = async (baseMediaId: string, compare
         const baseMediaSegment = baseMediaSegments.find(baseMediaSegment => baseMediaSegment.segment.id === segment.segment.id) as { segment: Segment, relevantScore: number }
         const compareMediaSegment = compareMediaSegments.find(compareMediaSegment => compareMediaSegment.segment.id === segment.segment.id) as { segment: Segment, relevantScore: number }
 
-        const score = (1 - Math.abs(baseMediaSegment.relevantScore - compareMediaSegment.relevantScore))
+        const score = (1 - Math.abs(baseMediaSegment.relevantScore - compareMediaSegment.relevantScore) / Math.max(baseMediaSegment.relevantScore, compareMediaSegment.relevantScore))
 
         return acc + score
     }, 0)
@@ -94,10 +94,10 @@ const calculateRelaventScoreBasedOnSegment = async (baseMediaId: string, compare
 }
 
 const calculateRelaventScoreOfFirstNMedia = async (n: number) => {
-    const media = await MediaRO.query().select('id').where('status', MediaStatus.completed).limit(n + 1)
+    const media = await MediaRO.query().select('id').where('status', MediaStatus.completed).limit(n + 1).offset(4000)
 
-    const baseMedia = media[50]
-    const compareMedia = media.slice(51)
+    const baseMedia = media[0]
+    const compareMedia = media.slice(1)
 
     for (let media of compareMedia) {
         try {
@@ -111,4 +111,4 @@ const calculateRelaventScoreOfFirstNMedia = async (n: number) => {
     }
 }
 
-calculateRelaventScoreOfFirstNMedia(100)
+calculateRelaventScoreOfFirstNMedia(10)
